@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AirFan | Gesture-Based Fan Controller</title>
+<title>AirFan | Gesture-Based Intelligent Fan Controller</title>
 
 <style>
 :root {
@@ -142,46 +142,37 @@ button:disabled { opacity:.5; cursor:not-allowed; }
 .muted { color:var(--muted); font-size:13px; }
 .meter { height:8px; background:#25364b; border-radius:10px; overflow:hidden; margin:13px 0; }
 .meter-fill {
-  height:100%; width:0;
+  height:100%;
+  width:0;
   background:linear-gradient(90deg,var(--cyan),var(--green));
   transition:width .25s;
 }
-.led-title {
-  display:flex;
-  justify-content:space-between;
-  gap:10px;
-  margin-top:18px;
-  font-size:13px;
+.speed-options {
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:8px;
+  margin-top:15px;
 }
-.led-row { display:grid; grid-template-columns:repeat(5,1fr); gap:9px; margin-top:11px; }
-.led {
-  background:#0a1726;
-  border:1px solid #2b4058;
-  border-radius:12px;
-  padding:12px 4px;
+.speed-option {
   text-align:center;
-  color:#7c90a7;
+  padding:13px 4px;
+  border-radius:10px;
+  border:1px solid var(--line);
+  color:var(--muted);
+  background:#0a1726;
+  cursor:pointer;
   transition:.2s;
 }
-.led-dot {
-  width:20px;height:20px;
-  border-radius:50%;
-  margin:0 auto 9px;
-  background:#243347;
-  border:2px solid #40516a;
+.speed-option strong { display:block; font-size:14px; }
+.speed-option small { display:block; font-size:10px; margin-top:5px; }
+.speed-option.active {
+  border-color:var(--cyan);
+  color:var(--cyan);
+  background:#123047;
+  box-shadow:0 0 12px #42d9ff12;
 }
-.led.active .led-dot {
-  background:var(--led);
-  border-color:var(--led);
-  box-shadow:0 0 13px var(--led);
-}
-.led.active {
-  border-color:var(--led);
-  color:var(--text);
-  background:#12243a;
-}
-.led strong { display:block; font-size:12px; }
-.led small { display:block; font-size:10px; margin-top:4px; color:var(--muted); }
+.off-button { border-color:#79424c; }
+.off-button.active { background:#44232d; color:#ff9aab; border-color:#ff7189; }
 .gesture-list { display:grid; gap:8px; }
 .gesture-item {
   display:flex;
@@ -211,6 +202,7 @@ footer { text-align:center; color:var(--muted); padding:25px; font-size:12px; }
   .grid { grid-template-columns:1fr; }
   .panel { padding:15px; }
   main { padding:20px 12px; }
+  .speed-options { gap:5px; }
 }
 </style>
 </head>
@@ -224,7 +216,7 @@ footer { text-align:center; color:var(--muted); padding:25px; font-size:12px; }
 <main>
   <section class="hero">
     <h1>Gesture-Based Intelligent Fan Controller</h1>
-    <p>Control five virtual fan speeds with your fingers. A closed fist switches the fan off.</p>
+    <p>Control fan speed using hand gestures detected through your webcam.</p>
   </section>
 
   <div class="grid">
@@ -235,7 +227,10 @@ footer { text-align:center; color:var(--muted); padding:25px; font-size:12px; }
         <video id="video" autoplay muted playsinline></video>
         <canvas id="overlay"></canvas>
         <div class="camera-message" id="cameraMessage">
-          <div><strong>Camera ready</strong><br>Press Start Camera to detect your hand.</div>
+          <div>
+            <strong>Camera ready</strong><br>
+            Press Start Camera to detect your hand.
+          </div>
         </div>
       </div>
 
@@ -257,7 +252,7 @@ footer { text-align:center; color:var(--muted); padding:25px; font-size:12px; }
       <h2>02 / Virtual Fan</h2>
 
       <div class="fan-stage">
-        <svg class="fan-svg" viewBox="0 0 300 280" role="img" aria-label="Three blade animated fan">
+        <svg class="fan-svg" viewBox="0 0 300 280" role="img" aria-label="Animated three blade fan">
           <defs>
             <linearGradient id="bladeGradient" x1="0" y1="0" x2="1" y2="1">
               <stop offset="0%" stop-color="#d9fbff"/>
@@ -295,40 +290,59 @@ footer { text-align:center; color:var(--muted); padding:25px; font-size:12px; }
       <div class="center muted" id="speedLabel">Fan OFF</div>
       <div class="meter"><div class="meter-fill" id="speedMeter"></div></div>
 
-      <div class="led-title">
-        <strong>Five-speed LED indicators</strong>
-        <span id="ledSummary">0 / 5 ON</span>
+      <h3 style="font-size:14px;margin:20px 0 8px">Fan speed control</h3>
+      <div class="speed-options">
+        <button class="speed-option off-button active" data-manual="0">
+          <strong>OFF</strong><small>0%</small>
+        </button>
+        <button class="speed-option" data-manual="1">
+          <strong>Speed 1</strong><small>20%</small>
+        </button>
+        <button class="speed-option" data-manual="2">
+          <strong>Speed 2</strong><small>40%</small>
+        </button>
+        <button class="speed-option" data-manual="3">
+          <strong>Speed 3</strong><small>60%</small>
+        </button>
+        <button class="speed-option" data-manual="4">
+          <strong>Speed 4</strong><small>80%</small>
+        </button>
       </div>
-
-      <div class="led-row">
-        <div class="led" data-led="1" style="--led:#39d9ff"><div class="led-dot"></div><strong>LED 1</strong><small>20%</small></div>
-        <div class="led" data-led="2" style="--led:#42e6a5"><div class="led-dot"></div><strong>LED 2</strong><small>40%</small></div>
-        <div class="led" data-led="3" style="--led:#f9d45c"><div class="led-dot"></div><strong>LED 3</strong><small>60%</small></div>
-        <div class="led" data-led="4" style="--led:#ffad59"><div class="led-dot"></div><strong>LED 4</strong><small>80%</small></div>
-        <div class="led" data-led="5" style="--led:#ff6688"><div class="led-dot"></div><strong>LED 5</strong><small>100%</small></div>
-      </div>
-
-      <h3 style="font-size:14px;margin:20px 0 8px">Manual speed control</h3>
       <div class="actions">
-        <button data-manual="0">OFF</button>
-        <button data-manual="1">Speed 1</button>
-        <button data-manual="2">Speed 2</button>
-        <button data-manual="3">Speed 3</button>
-        <button data-manual="4">Speed 4</button>
-        <button data-manual="5">Speed 5</button>
+        <button class="speed-option" data-manual="5" style="flex:1">
+          <strong>Speed 5</strong><small>100%</small>
+        </button>
       </div>
-      <p class="small">OFF is separate from the five speed levels. Each speed adds one illuminated LED.</p>
+      <p class="small">Choose OFF or any of the five fan speeds. The fan animation changes according to the selected level.</p>
     </section>
 
     <section class="panel">
       <h2>03 / Gesture Mapping</h2>
       <div class="gesture-list">
-        <div class="gesture-item" data-gesture="0"><div class="gesture-icon">✊</div><div><strong>Closed fist — OFF</strong><small>0 fingers · 0% · no LEDs</small></div></div>
-        <div class="gesture-item" data-gesture="1"><div class="gesture-icon">☝️</div><div><strong>1 finger — Speed 1</strong><small>20% · LED 1</small></div></div>
-        <div class="gesture-item" data-gesture="2"><div class="gesture-icon">✌️</div><div><strong>2 fingers — Speed 2</strong><small>40% · LEDs 1–2</small></div></div>
-        <div class="gesture-item" data-gesture="3"><div class="gesture-icon">🤟</div><div><strong>3 fingers — Speed 3</strong><small>60% · LEDs 1–3</small></div></div>
-        <div class="gesture-item" data-gesture="4"><div class="gesture-icon">🖖</div><div><strong>4 fingers — Speed 4</strong><small>80% · LEDs 1–4</small></div></div>
-        <div class="gesture-item" data-gesture="5"><div class="gesture-icon">🖐️</div><div><strong>5 fingers — Speed 5</strong><small>100% · LEDs 1–5</small></div></div>
+        <div class="gesture-item" data-gesture="0">
+          <div class="gesture-icon">✊</div>
+          <div><strong>Closed fist — OFF</strong><small>0 fingers · Fan stopped</small></div>
+        </div>
+        <div class="gesture-item" data-gesture="1">
+          <div class="gesture-icon">☝️</div>
+          <div><strong>1 finger — Speed 1</strong><small>20% fan speed</small></div>
+        </div>
+        <div class="gesture-item" data-gesture="2">
+          <div class="gesture-icon">✌️</div>
+          <div><strong>2 fingers — Speed 2</strong><small>40% fan speed</small></div>
+        </div>
+        <div class="gesture-item" data-gesture="3">
+          <div class="gesture-icon">🤟</div>
+          <div><strong>3 fingers — Speed 3</strong><small>60% fan speed</small></div>
+        </div>
+        <div class="gesture-item" data-gesture="4">
+          <div class="gesture-icon">🖖</div>
+          <div><strong>4 fingers — Speed 4</strong><small>80% fan speed</small></div>
+        </div>
+        <div class="gesture-item" data-gesture="5">
+          <div class="gesture-icon">🖐️</div>
+          <div><strong>5 fingers — Speed 5</strong><small>100% fan speed</small></div>
+        </div>
       </div>
     </section>
 
@@ -336,7 +350,7 @@ footer { text-align:center; color:var(--muted); padding:25px; font-size:12px; }
       <h2>04 / Activity Log</h2>
       <div class="log" id="log">[SYSTEM] AirFan simulation ready.</div>
       <div class="actions"><button id="clearLog">Clear Log</button></div>
-      <p class="small">Browser simulation only. The LEDs are virtual and no physical fan or ESP32 is controlled.</p>
+      <p class="small">This is a browser simulation. It does not control a physical fan or communicate with an ESP32.</p>
     </section>
   </div>
 </main>
@@ -403,12 +417,11 @@ function isFingerExtended(p, mcp, pip, dip, tip) {
 }
 
 function classifyFingers(p) {
-  const index  = isFingerExtended(p, 5, 6, 7, 8);
+  const index = isFingerExtended(p, 5, 6, 7, 8);
   const middle = isFingerExtended(p, 9, 10, 11, 12);
-  const ring   = isFingerExtended(p, 13, 14, 15, 16);
-  const pinky  = isFingerExtended(p, 17, 18, 19, 20);
+  const ring = isFingerExtended(p, 13, 14, 15, 16);
+  const pinky = isFingerExtended(p, 17, 18, 19, 20);
 
-  // Thumb estimate; orientation and occlusion can affect accuracy.
   const palmWidth = distance(p[5], p[17]);
   const thumbReach = distance(p[4], p[5]);
   const thumbAngle = jointAngle(p[2], p[3], p[4]);
@@ -416,8 +429,7 @@ function classifyFingers(p) {
                 thumbReach > palmWidth * 0.48 &&
                 thumbAngle > 115;
 
-  const fingers = [thumb, index, middle, ring, pinky];
-  return { fingers, count: fingers.filter(Boolean).length };
+  return [thumb, index, middle, ring, pinky].filter(Boolean).length;
 }
 
 function drawHand(points) {
@@ -463,19 +475,16 @@ function setFanSpeed(level, source = "gesture") {
   rotor.style.animationDuration =
     level === 0 ? "1s" : (2.4 - level * 0.38) + "s";
 
-  document.querySelectorAll("[data-led]").forEach(el => {
-    const ledNumber = Number(el.dataset.led);
-    el.classList.toggle("active", ledNumber <= level);
+  document.querySelectorAll("[data-manual]").forEach(button => {
+    button.classList.toggle("active", Number(button.dataset.manual) === level);
   });
 
-  $("ledSummary").textContent = `${level} / 5 ON`;
-
-  document.querySelectorAll("[data-gesture]").forEach(el => {
-    el.classList.toggle("current", Number(el.dataset.gesture) === level);
+  document.querySelectorAll("[data-gesture]").forEach(item => {
+    item.classList.toggle("current", Number(item.dataset.gesture) === level);
   });
 
   if (source !== "init") {
-    log(`${source}: speed ${level}/5, ${percent}%, ${level} LED(s) ON.`);
+    log(`${source}: fan speed ${level}/5 (${percent}%).`);
   }
 }
 
@@ -590,9 +599,7 @@ function processFrame(now) {
         const points = result.landmarks[0];
         drawHand(points);
 
-        const detected = classifyFingers(points);
-        const count = detected.count;
-
+        const count = classifyFingers(points);
         $("fingerCount").textContent = count;
         $("detectStatus").textContent = "TRACKING";
 
