@@ -4,437 +4,490 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AirFan | Gesture-Based Intelligent Fan Controller</title>
+<title>AirFan | Intelligent Gesture Controller</title>
 
 <style>
 :root {
-  --bg:#07111f;
-  --panel:#101e30;
-  --line:#263c55;
-  --text:#eef7ff;
-  --muted:#94a9c0;
-  --cyan:#42d9ff;
-  --green:#4ce6a5;
+  --bg: #07111f;
+  --panel: #101e30;
+  --panel2: #16263b;
+  --text: #eef5ff;
+  --muted: #9db0c8;
+  --accent: #42d9ff;
+  --green: #48e0a4;
+  --border: #273b53;
 }
-* { box-sizing:border-box; }
+* { box-sizing: border-box; }
 body {
-  margin:0;
-  background:radial-gradient(ellipse at top,#173653,var(--bg) 65%);
-  color:var(--text);
-  font-family:Arial,Helvetica,sans-serif;
-  min-height:100vh;
+  margin: 0;
+  min-height: 100vh;
+  color: var(--text);
+  background: radial-gradient(circle at top, #15304b, var(--bg) 58%);
+  font-family: system-ui, -apple-system, Segoe UI, sans-serif;
 }
 header {
-  padding:20px 5%;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:12px;
-  flex-wrap:wrap;
-  border-bottom:1px solid var(--line);
+  text-align: center;
+  padding: 26px 16px 12px;
 }
-.logo { font-size:25px; font-weight:900; letter-spacing:1px; }
-.logo span { color:var(--cyan); }
-.status {
-  font-size:12px;
-  color:var(--muted);
-  border:1px solid var(--line);
-  padding:9px 13px;
-  border-radius:30px;
+header h1 {
+  margin: 0;
+  font-size: clamp(27px, 5vw, 42px);
+  letter-spacing: 2px;
 }
-.status::before {
-  content:"";
-  display:inline-block;
-  width:8px;height:8px;
-  border-radius:50%;
-  background:#ffbd59;
-  margin-right:8px;
-}
-.status.active::before { background:var(--green); }
-main { max-width:1200px; margin:auto; padding:28px 18px; }
-.hero { margin-bottom:23px; }
-.hero h1 { font-size:clamp(27px,4vw,42px); margin:0 0 9px; }
-.hero p { color:var(--muted); line-height:1.6; margin:0; }
-.grid {
-  display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:18px;
+header h1 span { color: var(--accent); }
+header p { color: var(--muted); margin: 8px 0; }
+main {
+  width: min(1120px, 94%);
+  margin: 18px auto 40px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
 }
 .panel {
-  background:rgba(16,30,48,.96);
-  border:1px solid var(--line);
-  border-radius:19px;
-  padding:20px;
-  min-width:0;
+  background: linear-gradient(145deg, var(--panel2), var(--panel));
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 16px 45px #0003;
+  min-width: 0;
 }
-.panel h2 { font-size:18px; margin:0 0 17px; }
-.camera {
-  position:relative;
-  aspect-ratio:4/3;
-  background:#020711;
-  border:1px solid var(--line);
-  border-radius:13px;
-  overflow:hidden;
+.panel h2 { margin: 0 0 15px; font-size: 19px; }
+.camera-wrap {
+  position: relative;
+  overflow: hidden;
+  border-radius: 14px;
+  background: #030912;
+  aspect-ratio: 4 / 3;
 }
-video,#overlay {
-  position:absolute;
-  inset:0;
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  transform:scaleX(-1);
+video, canvas {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  inset: 0;
+  object-fit: cover;
+  transform: scaleX(-1);
 }
-#overlay { pointer-events:none; }
+canvas { pointer-events: none; }
 .camera-message {
-  position:absolute;
-  inset:0;
-  display:grid;
-  place-content:center;
-  text-align:center;
-  color:var(--muted);
-  padding:18px;
-  line-height:1.7;
-  pointer-events:none;
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  text-align: center;
+  color: var(--muted);
+  pointer-events: none;
 }
-.camera-message.hidden { display:none; }
-.actions { display:flex; gap:8px; flex-wrap:wrap; margin-top:13px; }
+.status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+  color: var(--muted);
+  font-size: 14px;
+}
+.dot {
+  width: 10px; height: 10px;
+  flex: 0 0 10px;
+  border-radius: 50%;
+  background: #73849b;
+}
+.dot.active { background: var(--green); box-shadow: 0 0 12px #48e0a477; }
+.actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px; }
 button {
-  border:1px solid var(--line);
-  border-radius:9px;
-  padding:10px 13px;
-  background:#1a3048;
-  color:var(--text);
-  font-size:13px;
-  cursor:pointer;
+  border: 1px solid var(--border);
+  color: var(--text);
+  background: #1b3048;
+  border-radius: 11px;
+  padding: 11px 15px;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+  transition: .18s ease;
 }
-button:hover { filter:brightness(1.16); }
-button.primary {
-  background:var(--cyan);
-  color:#061421;
-  font-weight:bold;
-  border-color:var(--cyan);
+button:hover { border-color: var(--accent); transform: translateY(-1px); }
+button:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+button.primary { background: #087fa1; border-color: #159dc0; }
+button.selected { background: #075c73; border-color: var(--accent); }
+.fan-area {
+  min-height: 270px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  position: relative;
 }
-button:disabled { opacity:.5; cursor:not-allowed; }
-.small { font-size:12px; color:var(--muted); line-height:1.6; margin-top:12px; }
-.metrics { display:grid; grid-template-columns:repeat(3,1fr); gap:9px; margin-top:15px; }
-.metric { background:#091726; border-radius:11px; padding:12px; min-width:0; }
-.metric strong { display:block; font-size:19px; overflow-wrap:anywhere; margin-bottom:5px; }
-.metric span { font-size:10px; color:var(--muted); }
-.fan-stage {
-  min-height:290px;
-  display:grid;
-  place-items:center;
-  overflow:hidden;
-  border-radius:14px;
-  background:radial-gradient(circle,#1a405c,#091524 72%);
+.fan {
+  width: min(230px, 70%);
+  aspect-ratio: 1;
+  position: relative;
 }
-.fan-svg { width:min(100%,300px); overflow:visible; }
-#rotor {
-  transform-box:view-box;
-  transform-origin:150px 140px;
-  animation:spin 1s linear infinite;
-  animation-play-state:paused;
+.fan-blades {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 50%;
+  animation: spin 1s linear infinite;
+  animation-play-state: paused;
 }
-@keyframes spin { to { transform:rotate(360deg); } }
-.speed { text-align:center; font-size:37px; font-weight:900; margin-top:15px; }
-.speed span { color:var(--cyan); }
-.center { text-align:center; }
-.muted { color:var(--muted); font-size:13px; }
-.meter { height:8px; background:#25364b; border-radius:10px; overflow:hidden; margin:13px 0; }
-.meter-fill {
-  height:100%;
-  width:0;
-  background:linear-gradient(90deg,var(--cyan),var(--green));
-  transition:width .25s;
+.blade {
+  position: absolute;
+  width: 29%;
+  height: 43%;
+  left: 35.5%;
+  top: 7%;
+  background: linear-gradient(135deg, #83edff, #2584ba 70%);
+  border-radius: 75% 20% 65% 20%;
+  transform-origin: 50% 100%;
+  box-shadow: 0 0 20px #42d9ff22;
 }
-.speed-options {
-  display:grid;
-  grid-template-columns:repeat(5,minmax(0,1fr));
-  gap:8px;
-  margin-top:15px;
+.blade:nth-child(2) { transform: rotate(120deg); }
+.blade:nth-child(3) { transform: rotate(240deg); }
+.fan-center {
+  position: absolute;
+  z-index: 2;
+  width: 20%;
+  aspect-ratio: 1;
+  top: 40%; left: 40%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #f4ffff, #52cce9 55%, #16759c);
+  border: 4px solid #b8f4ff;
+  box-shadow: 0 0 25px #42d9ff66;
 }
-.speed-option {
-  text-align:center;
-  padding:13px 4px;
-  border-radius:10px;
-  border:1px solid var(--line);
-  color:var(--muted);
-  background:#0a1726;
-  cursor:pointer;
-  transition:.2s;
+@keyframes spin { to { transform: rotate(360deg); } }
+.speed-title { text-align: center; color: var(--muted); margin-top: 3px; }
+.speed-value { text-align: center; font-size: 35px; font-weight: 750; margin: 5px 0; }
+.speed-value span { color: var(--accent); }
+.speed-buttons {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 9px;
+  margin-top: 20px;
 }
-.speed-option strong { display:block; font-size:14px; }
-.speed-option small { display:block; font-size:10px; margin-top:5px; }
-.speed-option.active {
-  border-color:var(--cyan);
-  color:var(--cyan);
-  background:#123047;
-  box-shadow:0 0 12px #42d9ff12;
+.speed-buttons button { padding: 13px 5px; }
+.progress {
+  height: 8px;
+  background: #25384e;
+  border-radius: 20px;
+  overflow: hidden;
+  margin-top: 12px;
 }
-.off-button { border-color:#79424c; }
-.off-button.active { background:#44232d; color:#ff9aab; border-color:#ff7189; }
-.gesture-list { display:grid; gap:8px; }
-.gesture-item {
-  display:flex;
-  align-items:center;
-  gap:12px;
-  padding:11px;
-  border-radius:10px;
-  background:#0a1726;
-  border:1px solid #20354c;
+.progress > div {
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, #159dc0, #42d9ff);
+  transition: width .3s ease;
 }
-.gesture-icon { width:42px; text-align:center; font-size:23px; }
-.gesture-item strong { font-size:13px; }
-.gesture-item small { display:block; color:var(--muted); font-size:11px; margin-top:4px; }
-.gesture-item.current { border-color:var(--cyan); background:#123047; }
-.log {
-  height:130px;
-  overflow-y:auto;
-  padding:12px;
-  border-radius:10px;
-  background:#06101c;
-  color:#a9c3dc;
-  font:12px/1.7 Consolas,monospace;
-  overflow-wrap:anywhere;
+.note {
+  border-left: 3px solid var(--accent);
+  padding: 10px 12px;
+  background: #0a1a2b;
+  border-radius: 0 10px 10px 0;
+  margin-top: 15px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.55;
 }
-footer { text-align:center; color:var(--muted); padding:25px; font-size:12px; }
-@media(max-width:760px) {
-  .grid { grid-template-columns:1fr; }
-  .panel { padding:15px; }
-  main { padding:20px 12px; }
-  .speed-options { gap:5px; }
+.wide { grid-column: 1 / -1; }
+.mapping {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.mapping div {
+  background: #0a192a;
+  border: 1px solid var(--border);
+  padding: 12px;
+  border-radius: 12px;
+  color: var(--muted);
+  font-size: 13px;
+}
+.mapping strong { display: block; color: var(--text); margin-bottom: 4px; }
+footer { text-align: center; color: var(--muted); padding: 0 15px 28px; font-size: 12px; }
+@media (max-width: 760px) {
+  main { grid-template-columns: 1fr; }
+  .wide { grid-column: auto; }
+  .mapping { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 </style>
 </head>
 
 <body>
 <header>
-  <div class="logo">AIR<span>FAN</span></div>
-  <div class="status" id="status">Camera not started</div>
+  <h1>AIR<span>FAN</span></h1>
+  <p>Intelligent Hand Gesture Fan Controller</p>
 </header>
 
 <main>
-  <section class="hero">
-    <h1>Gesture-Based Intelligent Fan Controller</h1>
-    <p>Control fan speed using hand gestures detected through your webcam.</p>
+  <section class="panel">
+    <h2>Live Gesture Camera</h2>
+    <div class="camera-wrap">
+      <video id="video" autoplay muted playsinline></video>
+      <canvas id="overlay"></canvas>
+      <div class="camera-message" id="cameraMessage">
+        Start the camera to control the virtual fan.
+      </div>
+    </div>
+
+    <div class="status">
+      <span class="dot" id="statusDot"></span>
+      <span id="statusText">Camera is not running</span>
+    </div>
+
+    <div class="actions">
+      <button class="primary" id="startBtn">Start Camera</button>
+      <button id="stopBtn" disabled>Stop Camera</button>
+    </div>
+
+    <div class="note">
+      Keep one hand clearly visible. Hold a gesture steadily until it is accepted.
+      Unclear or changing hand positions will be ignored.
+    </div>
   </section>
 
-  <div class="grid">
-    <section class="panel">
-      <h2>01 / Live Hand Recognition</h2>
-
-      <div class="camera">
-        <video id="video" autoplay muted playsinline></video>
-        <canvas id="overlay"></canvas>
-        <div class="camera-message" id="cameraMessage">
-          <div>
-            <strong>Camera ready</strong><br>
-            Press Start Camera to detect your hand.
-          </div>
+  <section class="panel">
+    <h2>Virtual Fan</h2>
+    <div class="fan-area">
+      <div class="fan">
+        <div class="fan-blades" id="fanBlades">
+          <div class="blade"></div>
+          <div class="blade"></div>
+          <div class="blade"></div>
         </div>
+        <div class="fan-center"></div>
       </div>
+    </div>
 
-      <div class="actions">
-        <button class="primary" id="startBtn">Start Camera</button>
-        <button id="stopBtn" disabled>Stop Camera</button>
-      </div>
+    <div class="speed-title">CURRENT FAN SETTING</div>
+    <div class="speed-value" id="speedValue">OFF</div>
+    <div class="speed-title" id="speedDescription">Fan stopped · 0%</div>
+    <div class="progress"><div id="speedProgress"></div></div>
 
-      <p class="small">Use good lighting and keep your palm and fingers visible inside the camera frame.</p>
+    <div class="speed-buttons" id="speedButtons">
+      <button data-speed="0" class="selected">OFF</button>
+      <button data-speed="1">Speed 1</button>
+      <button data-speed="2">Speed 2</button>
+      <button data-speed="3">Speed 3</button>
+      <button data-speed="4">Speed 4</button>
+      <button data-speed="5">Speed 5</button>
+    </div>
 
-      <div class="metrics">
-        <div class="metric"><strong id="fingerCount">—</strong><span>FINGERS DETECTED</span></div>
-        <div class="metric"><strong id="gestureName">WAIT</strong><span>GESTURE</span></div>
-        <div class="metric"><strong id="detectStatus">—</strong><span>RECOGNITION</span></div>
-      </div>
-    </section>
+    <div class="note">
+      Manual buttons always work. An unclear gesture never changes the current setting.
+      This is a website simulation and does not control a physical fan.
+    </div>
+  </section>
 
-    <section class="panel">
-      <h2>02 / Virtual Fan</h2>
-
-      <div class="fan-stage">
-        <svg class="fan-svg" viewBox="0 0 300 280" role="img" aria-label="Animated three blade fan">
-          <defs>
-            <linearGradient id="bladeGradient" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stop-color="#d9fbff"/>
-              <stop offset="45%" stop-color="#41d8ff"/>
-              <stop offset="100%" stop-color="#1765ad"/>
-            </linearGradient>
-            <radialGradient id="hubGradient" cx="30%" cy="25%">
-              <stop offset="0%" stop-color="#fff"/>
-              <stop offset="40%" stop-color="#70eaff"/>
-              <stop offset="100%" stop-color="#0876a5"/>
-            </radialGradient>
-          </defs>
-
-          <circle cx="150" cy="140" r="119" fill="#0a1c2e" stroke="#355773" stroke-width="4"/>
-          <circle cx="150" cy="140" r="108" fill="none" stroke="#203f59" stroke-width="2"/>
-          <circle cx="150" cy="140" r="94" fill="none" stroke="#24465e" stroke-width="1.5"/>
-
-          <g id="rotor">
-            <g fill="url(#bladeGradient)" stroke="#a9f3ff" stroke-width="1.5">
-              <path d="M150 134 C132 113 113 79 125 43 C131 23 151 27 163 49 C179 80 165 115 158 135 Z"/>
-              <path d="M150 134 C132 113 113 79 125 43 C131 23 151 27 163 49 C179 80 165 115 158 135 Z" transform="rotate(120 150 140)"/>
-              <path d="M150 134 C132 113 113 79 125 43 C131 23 151 27 163 49 C179 80 165 115 158 135 Z" transform="rotate(240 150 140)"/>
-            </g>
-            <circle cx="150" cy="140" r="25" fill="#0d2a41" stroke="#75eaff" stroke-width="3"/>
-            <circle cx="150" cy="140" r="17" fill="url(#hubGradient)"/>
-            <circle cx="144" cy="134" r="5" fill="#fff" opacity=".85"/>
-          </g>
-
-          <path d="M150 259 L150 268" stroke="#45627d" stroke-width="12" stroke-linecap="round"/>
-          <path d="M110 273 Q150 257 190 273" fill="none" stroke="#45627d" stroke-width="9" stroke-linecap="round"/>
-        </svg>
-      </div>
-
-      <div class="speed"><span id="speedValue">0</span>%</div>
-      <div class="center muted" id="speedLabel">Fan OFF</div>
-      <div class="meter"><div class="meter-fill" id="speedMeter"></div></div>
-
-      <h3 style="font-size:14px;margin:20px 0 8px">Fan speed control</h3>
-      <div class="speed-options">
-        <button class="speed-option off-button active" data-manual="0">
-          <strong>OFF</strong><small>0%</small>
-        </button>
-        <button class="speed-option" data-manual="1">
-          <strong>Speed 1</strong><small>20%</small>
-        </button>
-        <button class="speed-option" data-manual="2">
-          <strong>Speed 2</strong><small>40%</small>
-        </button>
-        <button class="speed-option" data-manual="3">
-          <strong>Speed 3</strong><small>60%</small>
-        </button>
-        <button class="speed-option" data-manual="4">
-          <strong>Speed 4</strong><small>80%</small>
-        </button>
-      </div>
-      <div class="actions">
-        <button class="speed-option" data-manual="5" style="flex:1">
-          <strong>Speed 5</strong><small>100%</small>
-        </button>
-      </div>
-      <p class="small">Choose OFF or any of the five fan speeds. The fan animation changes according to the selected level.</p>
-    </section>
-
-    <section class="panel">
-      <h2>03 / Gesture Mapping</h2>
-      <div class="gesture-list">
-        <div class="gesture-item" data-gesture="0">
-          <div class="gesture-icon">✊</div>
-          <div><strong>Closed fist — OFF</strong><small>0 fingers · Fan stopped</small></div>
-        </div>
-        <div class="gesture-item" data-gesture="1">
-          <div class="gesture-icon">☝️</div>
-          <div><strong>1 finger — Speed 1</strong><small>20% fan speed</small></div>
-        </div>
-        <div class="gesture-item" data-gesture="2">
-          <div class="gesture-icon">✌️</div>
-          <div><strong>2 fingers — Speed 2</strong><small>40% fan speed</small></div>
-        </div>
-        <div class="gesture-item" data-gesture="3">
-          <div class="gesture-icon">🤟</div>
-          <div><strong>3 fingers — Speed 3</strong><small>60% fan speed</small></div>
-        </div>
-        <div class="gesture-item" data-gesture="4">
-          <div class="gesture-icon">🖖</div>
-          <div><strong>4 fingers — Speed 4</strong><small>80% fan speed</small></div>
-        </div>
-        <div class="gesture-item" data-gesture="5">
-          <div class="gesture-icon">🖐️</div>
-          <div><strong>5 fingers — Speed 5</strong><small>100% fan speed</small></div>
-        </div>
-      </div>
-    </section>
-
-    <section class="panel">
-      <h2>04 / Activity Log</h2>
-      <div class="log" id="log">[SYSTEM] AirFan simulation ready.</div>
-      <div class="actions"><button id="clearLog">Clear Log</button></div>
-      <p class="small">This is a browser simulation. It does not control a physical fan or communicate with an ESP32.</p>
-    </section>
-  </div>
+  <section class="panel wide">
+    <h2>Gesture Assignment</h2>
+    <div class="mapping">
+      <div><strong>Closed fist</strong>OFF · 0%</div>
+      <div><strong>One finger</strong>Speed 1 · 20%</div>
+      <div><strong>Two fingers</strong>Speed 2 · 40%</div>
+      <div><strong>Three fingers</strong>Speed 3 · 60%</div>
+      <div><strong>Four fingers</strong>Speed 4 · 80%</div>
+      <div><strong>Five fingers</strong>Speed 5 · 100%</div>
+    </div>
+  </section>
 </main>
 
-<footer>AirFan · Intelligent Gesture Fan Controller · Webcam simulation</footer>
+<footer>AirFan · Browser-based MediaPipe hand tracking</footer>
 
 <script type="module">
-import { FilesetResolver, HandLandmarker }
-  from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/vision_bundle.mjs";
+import {
+  FilesetResolver,
+  HandLandmarker
+} from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/vision_bundle.mjs";
 
-const $ = id => document.getElementById(id);
-const video = $("video");
-const canvas = $("overlay");
+const video = document.getElementById("video");
+const canvas = document.getElementById("overlay");
 const ctx = canvas.getContext("2d");
-const rotor = $("rotor");
 
-let detector = null;
-let stream = null;
+const startBtn = document.getElementById("startBtn");
+const stopBtn = document.getElementById("stopBtn");
+const cameraMessage = document.getElementById("cameraMessage");
+const statusText = document.getElementById("statusText");
+const statusDot = document.getElementById("statusDot");
+const speedValue = document.getElementById("speedValue");
+const speedDescription = document.getElementById("speedDescription");
+const speedProgress = document.getElementById("speedProgress");
+const fanBlades = document.getElementById("fanBlades");
+const speedButtons = [...document.querySelectorAll("[data-speed]")];
+
+let handLandmarker = null;
+let cameraStream = null;
 let running = false;
+let busy = false;
+let animationFrame = null;
 let lastVideoTime = -1;
-let lastInference = 0;
-let candidateCount = null;
-let stableFrames = 0;
-let lastAppliedCount = null;
+let currentSpeed = 0;
+let lastAcceptedSpeed = 0;
 
-const REQUIRED_STABLE_FRAMES = 8;
-const INFERENCE_INTERVAL_MS = 65;
+// Require repeated consistent classifications before accepting a gesture.
+const HISTORY_SIZE = 12;
+const REQUIRED_MATCHES = 10;
+const CONFIRMATION_MS = 850;
+const CHANGE_COOLDOWN_MS = 1200;
+const MIN_DETECTION_CONFIDENCE = 0.75;
 
-function log(message) {
-  const line = document.createElement("div");
-  line.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
-  $("log").appendChild(line);
-  $("log").scrollTop = $("log").scrollHeight;
+let gestureHistory = [];
+let candidateGesture = null;
+let candidateSince = 0;
+let lastChangeAt = 0;
+let lastStableGesture = null;
+
+const SPEED_LABELS = [
+  "OFF", "Speed 1", "Speed 2", "Speed 3", "Speed 4", "Speed 5"
+];
+
+function setStatus(message, active = false) {
+  statusText.textContent = message;
+  statusDot.classList.toggle("active", active);
+}
+
+function setSpeed(speed, source = "manual") {
+  currentSpeed = speed;
+  lastAcceptedSpeed = speed;
+
+  speedValue.textContent = SPEED_LABELS[speed];
+  speedDescription.textContent =
+    speed === 0 ? "Fan stopped · 0%" : `Fan running · ${speed * 20}%`;
+  speedProgress.style.width = `${speed * 20}%`;
+
+  // Demonstration-only rotation speed.
+  fanBlades.style.animationPlayState = speed === 0 ? "paused" : "running";
+  fanBlades.style.animationDuration =
+    speed === 0 ? "1s" : `${1.8 - speed * 0.29}s`;
+
+  speedButtons.forEach(button => {
+    button.classList.toggle("selected", Number(button.dataset.speed) === speed);
+  });
+
+  if (source === "manual") {
+    setStatus("Manual setting selected", running);
+  }
+}
+
+speedButtons.forEach(button => {
+  button.addEventListener("click", () => {
+    setSpeed(Number(button.dataset.speed), "manual");
+    resetGestureFilter();
+  });
+});
+
+function resetGestureFilter() {
+  gestureHistory = [];
+  candidateGesture = null;
+  candidateSince = 0;
+  lastStableGesture = null;
 }
 
 function distance(a, b) {
-  return Math.hypot(
-    a.x - b.x,
-    a.y - b.y,
-    (a.z || 0) - (b.z || 0)
-  );
+  return Math.hypot(a.x - b.x, a.y - b.y, (a.z || 0) - (b.z || 0));
 }
 
-function jointAngle(a, b, c) {
-  const ab = [a.x-b.x, a.y-b.y, (a.z||0)-(b.z||0)];
-  const cb = [c.x-b.x, c.y-b.y, (c.z||0)-(b.z||0)];
-  const dot = ab.reduce((sum, v, i) => sum + v * cb[i], 0);
-  const magA = Math.hypot(...ab);
-  const magC = Math.hypot(...cb);
-  if (!magA || !magC) return 0;
-  const cos = Math.max(-1, Math.min(1, dot / (magA * magC)));
-  return Math.acos(cos) * 180 / Math.PI;
+function angleAtJoint(a, b, c) {
+  // Angle ABC, in degrees.
+  const ba = { x: a.x - b.x, y: a.y - b.y, z: (a.z || 0) - (b.z || 0) };
+  const bc = { x: c.x - b.x, y: c.y - b.y, z: (c.z || 0) - (b.z || 0) };
+  const dot = ba.x * bc.x + ba.y * bc.y + ba.z * bc.z;
+  const magBA = Math.hypot(ba.x, ba.y, ba.z);
+  const magBC = Math.hypot(bc.x, bc.y, bc.z);
+
+  if (magBA < 0.0001 || magBC < 0.0001) return 0;
+  const cosine = Math.max(-1, Math.min(1, dot / (magBA * magBC)));
+  return Math.acos(cosine) * 180 / Math.PI;
 }
 
-function isFingerExtended(p, mcp, pip, dip, tip) {
-  const pipAngle = jointAngle(p[mcp], p[pip], p[dip]);
-  const dipAngle = jointAngle(p[pip], p[dip], p[tip]);
-  const tipReach = distance(p[tip], p[0]);
-  const jointReach = distance(p[pip], p[0]);
+function classifyFinger(landmarks, mcpIndex, pipIndex, dipIndex, tipIndex) {
+  const mcp = landmarks[mcpIndex];
+  const pip = landmarks[pipIndex];
+  const dip = landmarks[dipIndex];
+  const tip = landmarks[tipIndex];
 
-  return pipAngle > 150 &&
-         dipAngle > 140 &&
-         tipReach > jointReach * 1.08;
+  const pipAngle = angleAtJoint(mcp, pip, dip);
+  const tipAngle = angleAtJoint(pip, dip, tip);
+  const verticalExtension = pip.y - tip.y;
+
+  // Clear extension: straight joints and fingertip above the PIP joint.
+  if (pipAngle >= 155 && tipAngle >= 145 && verticalExtension > 0.015) {
+    return true;
+  }
+
+  // Clear fold: bent joints or fingertip visibly below the PIP joint.
+  if (pipAngle <= 135 || (verticalExtension < -0.015 && pipAngle < 155)) {
+    return false;
+  }
+
+  // Ambiguous positions are rejected rather than guessed.
+  return null;
 }
 
-function classifyFingers(p) {
-  const index = isFingerExtended(p, 5, 6, 7, 8);
-  const middle = isFingerExtended(p, 9, 10, 11, 12);
-  const ring = isFingerExtended(p, 13, 14, 15, 16);
-  const pinky = isFingerExtended(p, 17, 18, 19, 20);
+function classifyThumb(landmarks) {
+  const wrist = landmarks[0];
+  const indexMcp = landmarks[5];
+  const thumbMcp = landmarks[2];
+  const thumbIp = landmarks[3];
+  const thumbTip = landmarks[4];
 
-  const palmWidth = distance(p[5], p[17]);
-  const thumbReach = distance(p[4], p[5]);
-  const thumbAngle = jointAngle(p[2], p[3], p[4]);
-  const thumb = palmWidth > 0 &&
-                thumbReach > palmWidth * 0.48 &&
-                thumbAngle > 115;
+  const palmWidth = distance(landmarks[5], landmarks[17]);
+  if (palmWidth < 0.025) return null;
 
-  return [thumb, index, middle, ring, pinky].filter(Boolean).length;
+  const thumbAngle = angleAtJoint(thumbMcp, thumbIp, thumbTip);
+  const spread = distance(thumbTip, indexMcp) / palmWidth;
+  const thumbReach = distance(thumbTip, wrist) / palmWidth;
+
+  // Both joint straightness and thumb separation are required.
+  if (thumbAngle > 150 && spread > 0.75 && thumbReach > 1.25) {
+    return true;
+  }
+
+  if (thumbAngle < 125 || (spread < 0.45 && thumbReach < 1.35)) {
+    return false;
+  }
+
+  return null;
 }
 
-function drawHand(points) {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  if (!points) return;
+function getStrictFingerCount(landmarks) {
+  // Do not classify hands that are too small in the image.
+  const palmSize = distance(landmarks[0], landmarks[9]);
+  if (palmSize < 0.09) return null;
+
+  const thumb = classifyThumb(landmarks);
+  const index = classifyFinger(landmarks, 5, 6, 7, 8);
+  const middle = classifyFinger(landmarks, 9, 10, 11, 12);
+  const ring = classifyFinger(landmarks, 13, 14, 15, 16);
+  const pinky = classifyFinger(landmarks, 17, 18, 19, 20);
+
+  const states = [thumb, index, middle, ring, pinky];
+
+  // Critical rule: if even one finger is ambiguous, reject the whole sample.
+  if (states.some(state => state === null)) return null;
+
+  // Prevent implausible finger ordering from causing false counts.
+  // Index, middle, ring and pinky should form a continuous raised sequence.
+  const longFingers = [index, middle, ring, pinky];
+  let seenRaised = false;
+
+  for (const raised of longFingers) {
+    if (raised) seenRaised = true;
+    else if (seenRaised) {
+      // A single folded finger among otherwise raised fingers can be valid,
+      // so do not reject solely for that pattern.
+      // Ambiguous geometry has already been rejected above.
+    }
+  }
+
+  return states.filter(Boolean).length;
+}
+
+function drawLandmarks(landmarks) {
+  const width = canvas.width;
+  const height = canvas.height;
+  ctx.clearRect(0, 0, width, height);
+
+  if (!landmarks) return;
 
   const connections = [
     [0,1],[1,2],[2,3],[3,4],
@@ -444,237 +497,223 @@ function drawHand(points) {
     [13,17],[17,18],[18,19],[19,20],[0,17]
   ];
 
-  ctx.lineWidth = Math.max(2, canvas.width / 240);
   ctx.strokeStyle = "#42d9ff";
-
-  for (const [a,b] of connections) {
+  ctx.lineWidth = Math.max(2, width / 300);
+  connections.forEach(([a, b]) => {
     ctx.beginPath();
-    ctx.moveTo(points[a].x * canvas.width, points[a].y * canvas.height);
-    ctx.lineTo(points[b].x * canvas.width, points[b].y * canvas.height);
+    ctx.moveTo(landmarks[a].x * width, landmarks[a].y * height);
+    ctx.lineTo(landmarks[b].x * width, landmarks[b].y * height);
     ctx.stroke();
-  }
+  });
 
-  points.forEach((p, i) => {
+  ctx.fillStyle = "#ffffff";
+  landmarks.forEach(point => {
     ctx.beginPath();
-    ctx.arc(p.x * canvas.width, p.y * canvas.height, i === 0 ? 5 : 3, 0, Math.PI * 2);
-    ctx.fillStyle = "#4ce6a5";
+    ctx.arc(point.x * width, point.y * height, Math.max(2, width / 160), 0, Math.PI * 2);
     ctx.fill();
   });
 }
 
-function setFanSpeed(level, source = "gesture") {
-  level = Math.max(0, Math.min(5, Number(level)));
-  const percent = level * 20;
+function processGesture(count, now) {
+  // Null samples are not candidates. They never alter the fan speed.
+  if (count === null) {
+    gestureHistory.push(null);
+    if (gestureHistory.length > HISTORY_SIZE) gestureHistory.shift();
 
-  $("speedValue").textContent = percent;
-  $("speedMeter").style.width = percent + "%";
-  $("speedLabel").textContent =
-    level === 0 ? "Fan OFF" : `Speed ${level} of 5`;
-
-  rotor.style.animationPlayState = level === 0 ? "paused" : "running";
-  rotor.style.animationDuration =
-    level === 0 ? "1s" : (2.4 - level * 0.38) + "s";
-
-  document.querySelectorAll("[data-manual]").forEach(button => {
-    button.classList.toggle("active", Number(button.dataset.manual) === level);
-  });
-
-  document.querySelectorAll("[data-gesture]").forEach(item => {
-    item.classList.toggle("current", Number(item.dataset.gesture) === level);
-  });
-
-  if (source !== "init") {
-    log(`${source}: fan speed ${level}/5 (${percent}%).`);
+    candidateGesture = null;
+    candidateSince = 0;
+    setStatus("Gesture unclear — keeping current speed", true);
+    return;
   }
+
+  gestureHistory.push(count);
+  if (gestureHistory.length > HISTORY_SIZE) gestureHistory.shift();
+
+  const validSamples = gestureHistory.filter(value => value !== null);
+  const matches = validSamples.filter(value => value === count).length;
+
+  // Need a large majority of recent valid samples to agree.
+  if (matches < REQUIRED_MATCHES || validSamples.length < REQUIRED_MATCHES) {
+    candidateGesture = null;
+    candidateSince = 0;
+    setStatus("Checking gesture stability…", true);
+    return;
+  }
+
+  if (candidateGesture !== count) {
+    candidateGesture = count;
+    candidateSince = now;
+    setStatus("Hold gesture steady to confirm…", true);
+    return;
+  }
+
+  if (now - candidateSince < CONFIRMATION_MS) {
+    setStatus("Confirming stable gesture…", true);
+    return;
+  }
+
+  lastStableGesture = count;
+
+  // A gesture that has already been accepted must not repeatedly trigger.
+  if (count === lastAcceptedSpeed && currentSpeed === count) {
+    setStatus("Gesture accepted — holding current speed", true);
+    return;
+  }
+
+  if (now - lastChangeAt < CHANGE_COOLDOWN_MS) {
+    setStatus("Please wait before the next change", true);
+    return;
+  }
+
+  setSpeed(count, "gesture");
+  lastChangeAt = now;
+  setStatus(`Gesture confirmed · ${SPEED_LABELS[count]}`, true);
+
+  // Clear history so a new change requires a fresh stable gesture.
+  resetGestureFilter();
 }
 
-function applyGesture(count) {
-  $("fingerCount").textContent = count;
-  $("gestureName").textContent =
-    count === 0 ? "FIST" :
-    count === 5 ? "OPEN HAND" :
-    `${count} FINGER${count === 1 ? "" : "S"}`;
-  $("detectStatus").textContent = "STABLE";
+async function loadModel() {
+  setStatus("Loading hand tracking model…");
 
-  if (lastAppliedCount !== count) {
-    setFanSpeed(count, "Gesture detected");
-    lastAppliedCount = count;
-  }
-}
-
-async function createDetector(delegate) {
   const vision = await FilesetResolver.forVisionTasks(
     "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm"
   );
 
-  return HandLandmarker.createFromOptions(vision, {
+  handLandmarker = await HandLandmarker.createFromOptions(vision, {
     baseOptions: {
       modelAssetPath:
         "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task",
-      delegate
+      delegate: "GPU"
     },
     runningMode: "VIDEO",
     numHands: 1,
-    minHandDetectionConfidence: 0.65,
-    minHandPresenceConfidence: 0.65,
-    minTrackingConfidence: 0.65
+    minHandDetectionConfidence: MIN_DETECTION_CONFIDENCE,
+    minHandPresenceConfidence: MIN_DETECTION_CONFIDENCE,
+    minTrackingConfidence: MIN_DETECTION_CONFIDENCE
   });
 }
 
 async function startCamera() {
-  $("startBtn").disabled = true;
-  $("startBtn").textContent = "Starting...";
+  if (running) return;
+
+  startBtn.disabled = true;
 
   try {
     if (!navigator.mediaDevices?.getUserMedia) {
       throw new Error("Camera access requires HTTPS or localhost.");
     }
 
-    if (!detector) {
-      try {
-        detector = await createDetector("GPU");
-      } catch (gpuError) {
-        log("GPU initialization failed; trying CPU.");
-        detector = await createDetector("CPU");
-      }
-    }
+    await loadModel();
 
-    stream = await navigator.mediaDevices.getUserMedia({
-      audio: false,
+    cameraStream = await navigator.mediaDevices.getUserMedia({
       video: {
         facingMode: "user",
         width: { ideal: 640 },
         height: { ideal: 480 }
-      }
+      },
+      audio: false
     });
 
-    video.srcObject = stream;
+    video.srcObject = cameraStream;
     await video.play();
 
     canvas.width = video.videoWidth || 640;
     canvas.height = video.videoHeight || 480;
 
     running = true;
-    lastVideoTime = -1;
-    candidateCount = null;
-    stableFrames = 0;
+    cameraMessage.style.display = "none";
+    startBtn.disabled = true;
+    stopBtn.disabled = false;
+    setStatus("Camera ready — show one hand", true);
+    resetGestureFilter();
 
-    $("cameraMessage").classList.add("hidden");
-    $("status").textContent = "Camera active";
-    $("status").classList.add("active");
-    $("startBtn").textContent = "Camera Running";
-    $("stopBtn").disabled = false;
-
-    log("Camera started. Show 0–5 fingers.");
-    requestAnimationFrame(processFrame);
+    animationFrame = requestAnimationFrame(detectFrame);
   } catch (error) {
     console.error(error);
-    log("ERROR: " + error.message);
-    $("status").textContent = "Camera unavailable";
-    $("startBtn").disabled = false;
-    $("startBtn").textContent = "Retry Camera";
-    alert(
-      "Could not start the camera or hand model.\n" +
-      "Allow camera permission and check your internet connection.\n\n" +
-      error.message
-    );
+    setStatus(`Unable to start: ${error.message}`);
+    cameraMessage.style.display = "grid";
+    cameraMessage.textContent =
+      "Camera/model could not start. Allow camera access and use HTTPS or localhost.";
+    startBtn.disabled = false;
+    stopBtn.disabled = true;
+
+    if (cameraStream) {
+      cameraStream.getTracks().forEach(track => track.stop());
+      cameraStream = null;
+    }
   }
 }
 
-function processFrame(now) {
-  if (!running) return;
+function detectFrame() {
+  if (!running || busy) return;
 
-  if (
-    video.readyState >= 2 &&
-    now - lastInference >= INFERENCE_INTERVAL_MS &&
-    video.currentTime !== lastVideoTime
-  ) {
-    lastInference = now;
-    lastVideoTime = video.currentTime;
-
-    try {
-      const result = detector.detectForVideo(video, now);
-
-      if (result.landmarks && result.landmarks.length > 0) {
-        const points = result.landmarks[0];
-        drawHand(points);
-
-        const count = classifyFingers(points);
-        $("fingerCount").textContent = count;
-        $("detectStatus").textContent = "TRACKING";
-
-        if (candidateCount === count) {
-          stableFrames++;
-        } else {
-          candidateCount = count;
-          stableFrames = 1;
-        }
-
-        if (stableFrames >= REQUIRED_STABLE_FRAMES) {
-          applyGesture(count);
-        } else {
-          $("gestureName").textContent = "VERIFYING";
-        }
-      } else {
-        drawHand(null);
-        candidateCount = null;
-        stableFrames = 0;
-        $("fingerCount").textContent = "—";
-        $("gestureName").textContent = "NO HAND";
-        $("detectStatus").textContent = "SEARCHING";
-      }
-    } catch (error) {
-      console.error("Detection error:", error);
-    }
+  if (video.readyState < 2) {
+    animationFrame = requestAnimationFrame(detectFrame);
+    return;
   }
 
-  requestAnimationFrame(processFrame);
+  busy = true;
+
+  try {
+    const now = performance.now();
+
+    if (video.currentTime !== lastVideoTime) {
+      lastVideoTime = video.currentTime;
+
+      const results = handLandmarker.detectForVideo(video, now);
+
+      if (results.landmarks && results.landmarks.length > 0) {
+        const landmarks = results.landmarks[0];
+        drawLandmarks(landmarks);
+
+        const count = getStrictFingerCount(landmarks);
+        processGesture(count, now);
+      } else {
+        drawLandmarks(null);
+        gestureHistory.push(null);
+        if (gestureHistory.length > HISTORY_SIZE) gestureHistory.shift();
+
+        candidateGesture = null;
+        candidateSince = 0;
+        setStatus("Hand not detected — keeping current speed", true);
+      }
+    }
+  } catch (error) {
+    console.error("Gesture detection error:", error);
+    setStatus("Detection error — keeping current speed");
+  } finally {
+    busy = false;
+    if (running) animationFrame = requestAnimationFrame(detectFrame);
+  }
 }
 
 function stopCamera() {
   running = false;
 
-  if (stream) {
-    stream.getTracks().forEach(track => track.stop());
-    stream = null;
+  if (animationFrame) cancelAnimationFrame(animationFrame);
+  animationFrame = null;
+
+  if (cameraStream) {
+    cameraStream.getTracks().forEach(track => track.stop());
+    cameraStream = null;
   }
 
   video.srcObject = null;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  $("cameraMessage").classList.remove("hidden");
-  $("status").textContent = "Camera stopped";
-  $("status").classList.remove("active");
-  $("startBtn").disabled = false;
-  $("startBtn").textContent = "Start Camera";
-  $("stopBtn").disabled = true;
+  cameraMessage.style.display = "grid";
+  cameraMessage.textContent = "Camera stopped. Start the camera to resume.";
+  startBtn.disabled = false;
+  stopBtn.disabled = true;
 
-  $("fingerCount").textContent = "—";
-  $("gestureName").textContent = "WAIT";
-  $("detectStatus").textContent = "—";
-
-  candidateCount = null;
-  stableFrames = 0;
-  log("Camera stopped.");
+  resetGestureFilter();
+  setStatus("Camera stopped — fan setting preserved");
 }
 
-$("startBtn").addEventListener("click", startCamera);
-$("stopBtn").addEventListener("click", stopCamera);
+startBtn.addEventListener("click", startCamera);
+stopBtn.addEventListener("click", stopCamera);
 
-document.querySelectorAll("[data-manual]").forEach(button => {
-  button.addEventListener("click", () => {
-    const level = Number(button.dataset.manual);
-    setFanSpeed(level, "Manual control");
-    lastAppliedCount = null;
-  });
-});
-
-$("clearLog").addEventListener("click", () => {
-  $("log").textContent = "";
-  log("Activity log cleared.");
-});
-
-window.addEventListener("pagehide", stopCamera);
-setFanSpeed(0, "init");
+setSpeed(0, "initial");
 </script>
 </body>
 </html>
