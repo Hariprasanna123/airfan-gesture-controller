@@ -1,5 +1,8 @@
 
-function isClosedFist(landmarks) {
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  function isClosedFist(landmarks) {
   // Reject hands that are too small or too far from the camera.
   const palmWidth = distance(landmarks[5], landmarks[17]);
   const palmLength = distance(landmarks[0], landmarks[9]);
