@@ -4,151 +4,213 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AirFan | Intelligent Gesture Controller</title>
-
-<script src="https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/vision_bundle.mjs"
-type="module"></script>
+<title>AirFan | Gesture-Based Fan Controller</title>
 
 <style>
 :root {
-  --bg: #08111f;
-  --panel: #111e30;
-  --line: #263b54;
-  --text: #eff6ff;
-  --muted: #94a8c1;
-  --cyan: #39d9ff;
-  --green: #42e6a4;
+  --bg:#07111f;
+  --panel:#101e30;
+  --line:#263c55;
+  --text:#eef7ff;
+  --muted:#94a9c0;
+  --cyan:#42d9ff;
+  --green:#4ce6a5;
 }
-* { box-sizing: border-box; }
+* { box-sizing:border-box; }
 body {
-  margin: 0;
-  font-family: Inter, Arial, sans-serif;
-  background: radial-gradient(ellipse at top, #16304b, var(--bg) 65%);
-  color: var(--text);
-  min-height: 100vh;
+  margin:0;
+  background:radial-gradient(ellipse at top,#173653,var(--bg) 65%);
+  color:var(--text);
+  font-family:Arial,Helvetica,sans-serif;
+  min-height:100vh;
 }
 header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 15px;
-  flex-wrap: wrap;
-  padding: 22px 5%;
-  border-bottom: 1px solid var(--line);
+  padding:20px 5%;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  flex-wrap:wrap;
+  border-bottom:1px solid var(--line);
 }
-.logo { font-size: 25px; font-weight: 800; letter-spacing: 1px; }
-.logo span { color: var(--cyan); }
+.logo { font-size:25px; font-weight:900; letter-spacing:1px; }
+.logo span { color:var(--cyan); }
 .status {
-  border: 1px solid var(--line);
-  border-radius: 30px;
-  padding: 9px 14px;
-  color: var(--muted);
-  font-size: 13px;
+  font-size:12px;
+  color:var(--muted);
+  border:1px solid var(--line);
+  padding:9px 13px;
+  border-radius:30px;
 }
 .status::before {
-  content: "";
-  display: inline-block;
-  width: 8px; height: 8px;
-  background: #ffb84d;
-  border-radius: 50%;
-  margin-right: 8px;
+  content:"";
+  display:inline-block;
+  width:8px;height:8px;
+  border-radius:50%;
+  background:#ffbd59;
+  margin-right:8px;
 }
-.status.active::before { background: var(--green); }
-main { max-width: 1200px; margin: auto; padding: 30px 20px; }
-.hero { margin-bottom: 25px; }
-.hero h1 { font-size: clamp(27px, 4vw, 42px); margin: 0 0 10px; }
-.hero p { color: var(--muted); line-height: 1.6; margin: 0; }
+.status.active::before { background:var(--green); }
+main { max-width:1200px; margin:auto; padding:28px 18px; }
+.hero { margin-bottom:23px; }
+.hero h1 { font-size:clamp(27px,4vw,42px); margin:0 0 9px; }
+.hero p { color:var(--muted); line-height:1.6; margin:0; }
 .grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 20px;
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:18px;
 }
 .panel {
-  background: rgba(17,30,48,.94);
-  border: 1px solid var(--line);
-  border-radius: 20px;
-  padding: 22px;
-  min-width: 0;
+  background:rgba(16,30,48,.96);
+  border:1px solid var(--line);
+  border-radius:19px;
+  padding:20px;
+  min-width:0;
 }
-.panel h2 { font-size: 18px; margin: 0 0 18px; }
+.panel h2 { font-size:18px; margin:0 0 17px; }
 .camera {
-  position: relative;
-  background: #030914;
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  overflow: hidden;
-  aspect-ratio: 4/3;
+  position:relative;
+  aspect-ratio:4/3;
+  background:#020711;
+  border:1px solid var(--line);
+  border-radius:13px;
+  overflow:hidden;
 }
-video, #landmarks {
-  position: absolute; width: 100%; height: 100%;
-  object-fit: cover; inset: 0;
-  transform: scaleX(-1);
+video,#overlay {
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  transform:scaleX(-1);
 }
-#landmarks { pointer-events: none; }
+#overlay { pointer-events:none; }
 .camera-message {
-  position: absolute; inset: 0; display: grid;
-  place-content: center; text-align: center;
-  color: var(--muted); padding: 20px;
-  pointer-events: none; line-height: 1.6;
+  position:absolute;
+  inset:0;
+  display:grid;
+  place-content:center;
+  text-align:center;
+  color:var(--muted);
+  padding:18px;
+  line-height:1.7;
+  pointer-events:none;
 }
-.camera-message.hidden { display: none; }
-.actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
-button, select {
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  padding: 11px 15px;
-  color: var(--text);
-  background: #1a2d44;
-  cursor: pointer;
-  font-size: 14px;
+.camera-message.hidden { display:none; }
+.actions { display:flex; gap:8px; flex-wrap:wrap; margin-top:13px; }
+button {
+  border:1px solid var(--line);
+  border-radius:9px;
+  padding:10px 13px;
+  background:#1a3048;
+  color:var(--text);
+  font-size:13px;
+  cursor:pointer;
 }
-button.primary { background: var(--cyan); color: #071321; font-weight: 800; border-color: var(--cyan); }
-button:hover { filter: brightness(1.12); }
-button:disabled { opacity: .5; cursor: not-allowed; }
-.small { color: var(--muted); font-size: 12px; line-height: 1.5; margin-top: 12px; }
+button:hover { filter:brightness(1.16); }
+button.primary {
+  background:var(--cyan);
+  color:#061421;
+  font-weight:bold;
+  border-color:var(--cyan);
+}
+button:disabled { opacity:.5; cursor:not-allowed; }
+.small { font-size:12px; color:var(--muted); line-height:1.6; margin-top:12px; }
+.metrics { display:grid; grid-template-columns:repeat(3,1fr); gap:9px; margin-top:15px; }
+.metric { background:#091726; border-radius:11px; padding:12px; min-width:0; }
+.metric strong { display:block; font-size:19px; overflow-wrap:anywhere; margin-bottom:5px; }
+.metric span { font-size:10px; color:var(--muted); }
 .fan-stage {
-  min-height: 285px; display: grid; place-items: center;
-  position: relative; overflow: hidden;
-  background: radial-gradient(circle, #183b58 0%, #0b1728 66%);
-  border-radius: 14px;
+  min-height:290px;
+  display:grid;
+  place-items:center;
+  overflow:hidden;
+  border-radius:14px;
+  background:radial-gradient(circle,#1a405c,#091524 72%);
 }
-.fan-svg { width: min(100%, 290px); overflow: visible; }
-.rotor {
-  transform-origin: 150px 145px;
-  animation: spin 1s linear infinite;
-  animation-play-state: paused;
+.fan-svg { width:min(100%,300px); overflow:visible; }
+#rotor {
+  transform-box:view-box;
+  transform-origin:150px 140px;
+  animation:spin 1s linear infinite;
+  animation-play-state:paused;
 }
-@keyframes spin { to { transform: rotate(360deg); } }
-.fan-speed {
-  text-align: center; margin-top: 17px;
-  font-size: 34px; font-weight: 800;
+@keyframes spin { to { transform:rotate(360deg); } }
+.speed { text-align:center; font-size:37px; font-weight:900; margin-top:15px; }
+.speed span { color:var(--cyan); }
+.center { text-align:center; }
+.muted { color:var(--muted); font-size:13px; }
+.meter { height:8px; background:#25364b; border-radius:10px; overflow:hidden; margin:13px 0; }
+.meter-fill {
+  height:100%; width:0;
+  background:linear-gradient(90deg,var(--cyan),var(--green));
+  transition:width .25s;
 }
-.fan-speed span { color: var(--cyan); }
-.center { text-align: center; }
-.muted { color: var(--muted); font-size: 13px; }
-.meter { height: 8px; background: #24364c; border-radius: 10px; margin: 14px 0; overflow: hidden; }
-.meter-fill { height: 100%; width: 0; background: linear-gradient(90deg, var(--cyan), var(--green)); transition: width .25s; }
-.metrics { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-top: 16px; }
-.metric { padding: 13px; background: #0b1728; border-radius: 12px; }
-.metric strong { display: block; font-size: 21px; margin-bottom: 5px; }
-.metric span { font-size: 11px; color: var(--muted); }
-.levels { display: grid; grid-template-columns: repeat(5,1fr); gap: 8px; margin-top: 15px; }
-.level {
-  text-align: center; padding: 12px 4px; border-radius: 10px;
-  border: 1px solid var(--line); color: var(--muted); font-size: 12px;
+.led-title {
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  margin-top:18px;
+  font-size:13px;
 }
-.level.active { border-color: var(--cyan); background: #14384c; color: var(--cyan); }
+.led-row { display:grid; grid-template-columns:repeat(5,1fr); gap:9px; margin-top:11px; }
+.led {
+  background:#0a1726;
+  border:1px solid #2b4058;
+  border-radius:12px;
+  padding:12px 4px;
+  text-align:center;
+  color:#7c90a7;
+  transition:.2s;
+}
+.led-dot {
+  width:20px;height:20px;
+  border-radius:50%;
+  margin:0 auto 9px;
+  background:#243347;
+  border:2px solid #40516a;
+}
+.led.active .led-dot {
+  background:var(--led);
+  border-color:var(--led);
+  box-shadow:0 0 13px var(--led);
+}
+.led.active {
+  border-color:var(--led);
+  color:var(--text);
+  background:#12243a;
+}
+.led strong { display:block; font-size:12px; }
+.led small { display:block; font-size:10px; margin-top:4px; color:var(--muted); }
+.gesture-list { display:grid; gap:8px; }
+.gesture-item {
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:11px;
+  border-radius:10px;
+  background:#0a1726;
+  border:1px solid #20354c;
+}
+.gesture-icon { width:42px; text-align:center; font-size:23px; }
+.gesture-item strong { font-size:13px; }
+.gesture-item small { display:block; color:var(--muted); font-size:11px; margin-top:4px; }
+.gesture-item.current { border-color:var(--cyan); background:#123047; }
 .log {
-  background: #07101c; padding: 12px; border-radius: 10px;
-  height: 125px; overflow-y: auto; color: #a9c2d9;
-  font: 12px/1.7 Consolas, monospace;
+  height:130px;
+  overflow-y:auto;
+  padding:12px;
+  border-radius:10px;
+  background:#06101c;
+  color:#a9c3dc;
+  font:12px/1.7 Consolas,monospace;
+  overflow-wrap:anywhere;
 }
-footer { text-align: center; color: var(--muted); padding: 25px; font-size: 12px; }
+footer { text-align:center; color:var(--muted); padding:25px; font-size:12px; }
 @media(max-width:760px) {
-  .grid { grid-template-columns: 1fr; }
-  .metrics { grid-template-columns: repeat(3,1fr); }
-  main { padding: 22px 13px; }
-  .panel { padding: 16px; }
+  .grid { grid-template-columns:1fr; }
+  .panel { padding:15px; }
+  main { padding:20px 12px; }
 }
 </style>
 </head>
@@ -156,206 +218,213 @@ footer { text-align: center; color: var(--muted); padding: 25px; font-size: 12px
 <body>
 <header>
   <div class="logo">AIR<span>FAN</span></div>
-  <div id="systemStatus" class="status">Camera not started</div>
+  <div class="status" id="status">Camera not started</div>
 </header>
 
 <main>
   <section class="hero">
     <h1>Gesture-Based Intelligent Fan Controller</h1>
-    <p>Control a virtual fan using hand gestures detected by your webcam.</p>
+    <p>Control five virtual fan speeds with your fingers. A closed fist switches the fan off.</p>
   </section>
 
   <div class="grid">
     <section class="panel">
-      <h2>01 / Live Hand Detection</h2>
+      <h2>01 / Live Hand Recognition</h2>
+
       <div class="camera">
-        <video id="video" autoplay playsinline muted></video>
-        <canvas id="landmarks"></canvas>
-        <div id="cameraMessage" class="camera-message">
-          <div>
-            <strong>Camera is waiting</strong><br>
-            Select Start Camera to begin gesture recognition.
-          </div>
+        <video id="video" autoplay muted playsinline></video>
+        <canvas id="overlay"></canvas>
+        <div class="camera-message" id="cameraMessage">
+          <div><strong>Camera ready</strong><br>Press Start Camera to detect your hand.</div>
         </div>
       </div>
+
       <div class="actions">
-        <button id="startBtn" class="primary">Start Camera</button>
+        <button class="primary" id="startBtn">Start Camera</button>
         <button id="stopBtn" disabled>Stop Camera</button>
       </div>
-      <p class="small">Allow camera access when your browser asks. Use good lighting and keep your whole hand visible.</p>
+
+      <p class="small">Use good lighting and keep your palm and fingers visible inside the camera frame.</p>
 
       <div class="metrics">
-        <div class="metric"><strong id="fingerCount">—</strong><span>FINGERS</span></div>
+        <div class="metric"><strong id="fingerCount">—</strong><span>FINGERS DETECTED</span></div>
         <div class="metric"><strong id="gestureName">WAIT</strong><span>GESTURE</span></div>
-        <div class="metric"><strong id="confidence">—</strong><span>DETECTION</span></div>
+        <div class="metric"><strong id="detectStatus">—</strong><span>RECOGNITION</span></div>
       </div>
     </section>
 
     <section class="panel">
       <h2>02 / Virtual Fan</h2>
+
       <div class="fan-stage">
-        <svg class="fan-svg" viewBox="0 0 300 290" role="img" aria-label="Animated three blade fan">
+        <svg class="fan-svg" viewBox="0 0 300 280" role="img" aria-label="Three blade animated fan">
           <defs>
-            <radialGradient id="hub" cx="35%" cy="25%">
-              <stop offset="0%" stop-color="#ffffff"/>
-              <stop offset="35%" stop-color="#71eaff"/>
-              <stop offset="100%" stop-color="#147ca8"/>
-            </radialGradient>
-            <linearGradient id="blade" x1="0" y1="0" x2="1" y2="1">
+            <linearGradient id="bladeGradient" x1="0" y1="0" x2="1" y2="1">
               <stop offset="0%" stop-color="#d9fbff"/>
-              <stop offset="40%" stop-color="#38cfff"/>
-              <stop offset="100%" stop-color="#1766b6"/>
+              <stop offset="45%" stop-color="#41d8ff"/>
+              <stop offset="100%" stop-color="#1765ad"/>
             </linearGradient>
+            <radialGradient id="hubGradient" cx="30%" cy="25%">
+              <stop offset="0%" stop-color="#fff"/>
+              <stop offset="40%" stop-color="#70eaff"/>
+              <stop offset="100%" stop-color="#0876a5"/>
+            </radialGradient>
           </defs>
-          <circle cx="150" cy="145" r="124" fill="#0b2034" stroke="#31516b" stroke-width="3"/>
-          <circle cx="150" cy="145" r="112" fill="none" stroke="#244761" stroke-width="2"/>
-          <circle cx="150" cy="145" r="96" fill="none" stroke="#1c394f" stroke-width="1.5"/>
-          <g id="rotor" class="rotor">
-            <g fill="url(#blade)" stroke="#a4f2ff" stroke-width="1.5">
-              <path d="M150 139 C132 116 111 78 126 38 C132 20 153 28 163 52 C177 85 165 118 158 140 Z"/>
-              <path d="M150 139 C132 116 111 78 126 38 C132 20 153 28 163 52 C177 85 165 118 158 140 Z" transform="rotate(120 150 145)"/>
-              <path d="M150 139 C132 116 111 78 126 38 C132 20 153 28 163 52 C177 85 165 118 158 140 Z" transform="rotate(240 150 145)"/>
+
+          <circle cx="150" cy="140" r="119" fill="#0a1c2e" stroke="#355773" stroke-width="4"/>
+          <circle cx="150" cy="140" r="108" fill="none" stroke="#203f59" stroke-width="2"/>
+          <circle cx="150" cy="140" r="94" fill="none" stroke="#24465e" stroke-width="1.5"/>
+
+          <g id="rotor">
+            <g fill="url(#bladeGradient)" stroke="#a9f3ff" stroke-width="1.5">
+              <path d="M150 134 C132 113 113 79 125 43 C131 23 151 27 163 49 C179 80 165 115 158 135 Z"/>
+              <path d="M150 134 C132 113 113 79 125 43 C131 23 151 27 163 49 C179 80 165 115 158 135 Z" transform="rotate(120 150 140)"/>
+              <path d="M150 134 C132 113 113 79 125 43 C131 23 151 27 163 49 C179 80 165 115 158 135 Z" transform="rotate(240 150 140)"/>
             </g>
-            <circle cx="150" cy="145" r="25" fill="#102e48" stroke="#70eaff" stroke-width="3"/>
-            <circle cx="150" cy="145" r="17" fill="url(#hub)"/>
-            <circle cx="145" cy="139" r="5" fill="#ffffff" opacity=".8"/>
+            <circle cx="150" cy="140" r="25" fill="#0d2a41" stroke="#75eaff" stroke-width="3"/>
+            <circle cx="150" cy="140" r="17" fill="url(#hubGradient)"/>
+            <circle cx="144" cy="134" r="5" fill="#fff" opacity=".85"/>
           </g>
-          <rect x="139" y="263" width="22" height="13" rx="4" fill="#43617b"/>
-          <path d="M111 283 Q150 265 189 283" fill="none" stroke="#43617b" stroke-width="8" stroke-linecap="round"/>
+
+          <path d="M150 259 L150 268" stroke="#45627d" stroke-width="12" stroke-linecap="round"/>
+          <path d="M110 273 Q150 257 190 273" fill="none" stroke="#45627d" stroke-width="9" stroke-linecap="round"/>
         </svg>
       </div>
 
-      <div class="fan-speed"><span id="speedValue">0</span>%</div>
-      <div id="speedLabel" class="center muted">Fan OFF</div>
-      <div class="meter"><div id="speedMeter" class="meter-fill"></div></div>
-      <div class="levels">
-        <div class="level" data-level="0">0<br>OFF</div>
-        <div class="level" data-level="1">1<br>LOW</div>
-        <div class="level" data-level="2">2<br>MEDIUM</div>
-        <div class="level" data-level="3">3<br>HIGH</div>
-        <div class="level" data-level="4">4<br>MAX</div>
+      <div class="speed"><span id="speedValue">0</span>%</div>
+      <div class="center muted" id="speedLabel">Fan OFF</div>
+      <div class="meter"><div class="meter-fill" id="speedMeter"></div></div>
+
+      <div class="led-title">
+        <strong>Five-speed LED indicators</strong>
+        <span id="ledSummary">0 / 5 ON</span>
       </div>
 
-      <div class="actions">
-        <button data-manual="0">Off</button>
-        <button data-manual="1">Low</button>
-        <button data-manual="2">Medium</button>
-        <button data-manual="3">High</button>
-        <button data-manual="4">Max</button>
+      <div class="led-row">
+        <div class="led" data-led="1" style="--led:#39d9ff"><div class="led-dot"></div><strong>LED 1</strong><small>20%</small></div>
+        <div class="led" data-led="2" style="--led:#42e6a5"><div class="led-dot"></div><strong>LED 2</strong><small>40%</small></div>
+        <div class="led" data-led="3" style="--led:#f9d45c"><div class="led-dot"></div><strong>LED 3</strong><small>60%</small></div>
+        <div class="led" data-led="4" style="--led:#ffad59"><div class="led-dot"></div><strong>LED 4</strong><small>80%</small></div>
+        <div class="led" data-led="5" style="--led:#ff6688"><div class="led-dot"></div><strong>LED 5</strong><small>100%</small></div>
       </div>
-      <p class="small">Manual controls test the animation without the webcam. This is a software simulation, not a real fan controller.</p>
+
+      <h3 style="font-size:14px;margin:20px 0 8px">Manual speed control</h3>
+      <div class="actions">
+        <button data-manual="0">OFF</button>
+        <button data-manual="1">Speed 1</button>
+        <button data-manual="2">Speed 2</button>
+        <button data-manual="3">Speed 3</button>
+        <button data-manual="4">Speed 4</button>
+        <button data-manual="5">Speed 5</button>
+      </div>
+      <p class="small">OFF is separate from the five speed levels. Each speed adds one illuminated LED.</p>
     </section>
 
     <section class="panel">
       <h2>03 / Gesture Mapping</h2>
-      <div class="levels" style="grid-template-columns:repeat(5,1fr)">
-        <div class="level">✊<br>0 fingers<br>OFF</div>
-        <div class="level">☝️<br>1 finger<br>LOW</div>
-        <div class="level">✌️<br>2 fingers<br>MEDIUM</div>
-        <div class="level">🤟<br>3 fingers<br>HIGH</div>
-        <div class="level">🖐️<br>4–5 fingers<br>MAX</div>
+      <div class="gesture-list">
+        <div class="gesture-item" data-gesture="0"><div class="gesture-icon">✊</div><div><strong>Closed fist — OFF</strong><small>0 fingers · 0% · no LEDs</small></div></div>
+        <div class="gesture-item" data-gesture="1"><div class="gesture-icon">☝️</div><div><strong>1 finger — Speed 1</strong><small>20% · LED 1</small></div></div>
+        <div class="gesture-item" data-gesture="2"><div class="gesture-icon">✌️</div><div><strong>2 fingers — Speed 2</strong><small>40% · LEDs 1–2</small></div></div>
+        <div class="gesture-item" data-gesture="3"><div class="gesture-icon">🤟</div><div><strong>3 fingers — Speed 3</strong><small>60% · LEDs 1–3</small></div></div>
+        <div class="gesture-item" data-gesture="4"><div class="gesture-icon">🖖</div><div><strong>4 fingers — Speed 4</strong><small>80% · LEDs 1–4</small></div></div>
+        <div class="gesture-item" data-gesture="5"><div class="gesture-icon">🖐️</div><div><strong>5 fingers — Speed 5</strong><small>100% · LEDs 1–5</small></div></div>
       </div>
-      <p class="small">A gesture must remain stable across multiple video frames before changing the fan speed. Detection can vary with hand angle, lighting and occlusion.</p>
     </section>
 
     <section class="panel">
-      <h2>04 / System Activity</h2>
-      <div id="log" class="log">[SYSTEM] AirFan interface ready.</div>
-      <div class="actions">
-        <button id="clearLog">Clear Log</button>
-      </div>
-      <p class="small">The status and activity log show local browser events. No physical ESP32 connection is implemented in this page.</p>
+      <h2>04 / Activity Log</h2>
+      <div class="log" id="log">[SYSTEM] AirFan simulation ready.</div>
+      <div class="actions"><button id="clearLog">Clear Log</button></div>
+      <p class="small">Browser simulation only. The LEDs are virtual and no physical fan or ESP32 is controlled.</p>
     </section>
   </div>
 </main>
 
-<footer>AirFan • Gesture-Based Intelligent Fan Controller • Browser simulation</footer>
+<footer>AirFan · Intelligent Gesture Fan Controller · Webcam simulation</footer>
 
 <script type="module">
 import { FilesetResolver, HandLandmarker }
   from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/vision_bundle.mjs";
 
-const video = document.getElementById("video");
-const canvas = document.getElementById("landmarks");
+const $ = id => document.getElementById(id);
+const video = $("video");
+const canvas = $("overlay");
 const ctx = canvas.getContext("2d");
-const startBtn = document.getElementById("startBtn");
-const stopBtn = document.getElementById("stopBtn");
-const cameraMessage = document.getElementById("cameraMessage");
-const systemStatus = document.getElementById("systemStatus");
-const rotor = document.getElementById("rotor");
+const rotor = $("rotor");
 
-let handLandmarker = null;
+let detector = null;
 let stream = null;
 let running = false;
 let lastVideoTime = -1;
-let candidateGesture = null;
-let candidateFrames = 0;
-let currentGesture = null;
-let lastAppliedGesture = null;
-let lastInferenceTime = 0;
+let lastInference = 0;
+let candidateCount = null;
+let stableFrames = 0;
+let lastAppliedCount = null;
 
-const GESTURE_FRAMES = 8;
-const INFERENCE_INTERVAL = 70;
-const speeds = [0, 25, 50, 75, 100];
-const labels = ["FIST", "ONE FINGER", "TWO FINGERS", "THREE FINGERS", "OPEN HAND"];
+const REQUIRED_STABLE_FRAMES = 8;
+const INFERENCE_INTERVAL_MS = 65;
 
 function log(message) {
-  const el = document.getElementById("log");
   const line = document.createElement("div");
   line.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
-  el.appendChild(line);
-  el.scrollTop = el.scrollHeight;
+  $("log").appendChild(line);
+  $("log").scrollTop = $("log").scrollHeight;
 }
 
 function distance(a, b) {
-  return Math.hypot(a.x - b.x, a.y - b.y, (a.z || 0) - (b.z || 0));
+  return Math.hypot(
+    a.x - b.x,
+    a.y - b.y,
+    (a.z || 0) - (b.z || 0)
+  );
 }
 
-function angle(a, b, c) {
-  const v1 = [a.x - b.x, a.y - b.y, (a.z || 0) - (b.z || 0)];
-  const v2 = [c.x - b.x, c.y - b.y, (c.z || 0) - (b.z || 0)];
-  const dot = v1.reduce((sum, v, i) => sum + v * v2[i], 0);
-  const n1 = Math.hypot(...v1);
-  const n2 = Math.hypot(...v2);
-  if (!n1 || !n2) return 0;
-  const cosine = Math.max(-1, Math.min(1, dot / (n1 * n2)));
-  return Math.acos(cosine) * 180 / Math.PI;
+function jointAngle(a, b, c) {
+  const ab = [a.x-b.x, a.y-b.y, (a.z||0)-(b.z||0)];
+  const cb = [c.x-b.x, c.y-b.y, (c.z||0)-(b.z||0)];
+  const dot = ab.reduce((sum, v, i) => sum + v * cb[i], 0);
+  const magA = Math.hypot(...ab);
+  const magC = Math.hypot(...cb);
+  if (!magA || !magC) return 0;
+  const cos = Math.max(-1, Math.min(1, dot / (magA * magC)));
+  return Math.acos(cos) * 180 / Math.PI;
 }
 
-function fingerExtended(p, mcp, pip, dip, tip) {
-  const pipAngle = angle(p[mcp], p[pip], p[dip]);
-  const dipAngle = angle(p[pip], p[dip], p[tip]);
-  const wristReach = distance(p[tip], p[0]);
-  const pipReach = distance(p[pip], p[0]);
-  return pipAngle > 150 && dipAngle > 140 && wristReach > pipReach * 1.08;
+function isFingerExtended(p, mcp, pip, dip, tip) {
+  const pipAngle = jointAngle(p[mcp], p[pip], p[dip]);
+  const dipAngle = jointAngle(p[pip], p[dip], p[tip]);
+  const tipReach = distance(p[tip], p[0]);
+  const jointReach = distance(p[pip], p[0]);
+
+  return pipAngle > 150 &&
+         dipAngle > 140 &&
+         tipReach > jointReach * 1.08;
 }
 
-function classifyGesture(points) {
-  const index = fingerExtended(points, 5, 6, 7, 8);
-  const middle = fingerExtended(points, 9, 10, 11, 12);
-  const ring = fingerExtended(points, 13, 14, 15, 16);
-  const pinky = fingerExtended(points, 17, 18, 19, 20);
+function classifyFingers(p) {
+  const index  = isFingerExtended(p, 5, 6, 7, 8);
+  const middle = isFingerExtended(p, 9, 10, 11, 12);
+  const ring   = isFingerExtended(p, 13, 14, 15, 16);
+  const pinky  = isFingerExtended(p, 17, 18, 19, 20);
 
-  // Thumb extension is estimated from thumb-tip distance from the palm.
-  // This can be less reliable for sideways or partially hidden hands.
-  const palmWidth = distance(points[5], points[17]);
-  const thumbReach = distance(points[4], points[5]);
-  const thumbAngle = angle(points[2], points[3], points[4]);
+  // Thumb estimate; orientation and occlusion can affect accuracy.
+  const palmWidth = distance(p[5], p[17]);
+  const thumbReach = distance(p[4], p[5]);
+  const thumbAngle = jointAngle(p[2], p[3], p[4]);
   const thumb = palmWidth > 0 &&
-    thumbReach > palmWidth * 0.48 &&
-    thumbAngle > 115;
+                thumbReach > palmWidth * 0.48 &&
+                thumbAngle > 115;
 
-  const count = [thumb, index, middle, ring, pinky].filter(Boolean).length;
-  return { count, fingers: [thumb, index, middle, ring, pinky] };
+  const fingers = [thumb, index, middle, ring, pinky];
+  return { fingers, count: fingers.filter(Boolean).length };
 }
 
-function drawHand(landmarks) {
-  const w = canvas.width;
-  const h = canvas.height;
-  ctx.clearRect(0, 0, w, h);
-  if (!landmarks) return;
+function drawHand(points) {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  if (!points) return;
 
-  const links = [
+  const connections = [
     [0,1],[1,2],[2,3],[3,4],
     [0,5],[5,6],[6,7],[7,8],
     [5,9],[9,10],[10,11],[11,12],
@@ -363,60 +432,68 @@ function drawHand(landmarks) {
     [13,17],[17,18],[18,19],[19,20],[0,17]
   ];
 
-  ctx.lineWidth = Math.max(2, w / 220);
-  ctx.strokeStyle = "#39d9ff";
-  for (const [a, b] of links) {
+  ctx.lineWidth = Math.max(2, canvas.width / 240);
+  ctx.strokeStyle = "#42d9ff";
+
+  for (const [a,b] of connections) {
     ctx.beginPath();
-    ctx.moveTo(landmarks[a].x * w, landmarks[a].y * h);
-    ctx.lineTo(landmarks[b].x * w, landmarks[b].y * h);
+    ctx.moveTo(points[a].x * canvas.width, points[a].y * canvas.height);
+    ctx.lineTo(points[b].x * canvas.width, points[b].y * canvas.height);
     ctx.stroke();
   }
 
-  for (const point of landmarks) {
+  points.forEach((p, i) => {
     ctx.beginPath();
-    ctx.arc(point.x * w, point.y * h, Math.max(2.5, w / 150), 0, Math.PI * 2);
-    ctx.fillStyle = "#42e6a4";
+    ctx.arc(p.x * canvas.width, p.y * canvas.height, i === 0 ? 5 : 3, 0, Math.PI * 2);
+    ctx.fillStyle = "#4ce6a5";
     ctx.fill();
-  }
+  });
 }
 
-function setFan(level, source = "gesture") {
-  level = Math.max(0, Math.min(4, Number(level)));
-  const percent = speeds[level];
+function setFanSpeed(level, source = "gesture") {
+  level = Math.max(0, Math.min(5, Number(level)));
+  const percent = level * 20;
 
-  document.getElementById("speedValue").textContent = percent;
-  document.getElementById("speedMeter").style.width = percent + "%";
-  document.getElementById("speedLabel").textContent =
-    level === 0 ? "Fan OFF" : ["", "Low speed", "Medium speed", "High speed", "Maximum speed"][level];
+  $("speedValue").textContent = percent;
+  $("speedMeter").style.width = percent + "%";
+  $("speedLabel").textContent =
+    level === 0 ? "Fan OFF" : `Speed ${level} of 5`;
 
   rotor.style.animationPlayState = level === 0 ? "paused" : "running";
-  rotor.style.animationDuration = level === 0 ? "1s" : (2.2 - level * 0.42) + "s";
+  rotor.style.animationDuration =
+    level === 0 ? "1s" : (2.4 - level * 0.38) + "s";
 
-  document.querySelectorAll(".level[data-level]").forEach(el => {
-    el.classList.toggle("active", Number(el.dataset.level) === level);
+  document.querySelectorAll("[data-led]").forEach(el => {
+    const ledNumber = Number(el.dataset.led);
+    el.classList.toggle("active", ledNumber <= level);
   });
 
-  if (source === "gesture" || source === "manual") {
-    log(`Fan set to ${percent}% (${source}).`);
+  $("ledSummary").textContent = `${level} / 5 ON`;
+
+  document.querySelectorAll("[data-gesture]").forEach(el => {
+    el.classList.toggle("current", Number(el.dataset.gesture) === level);
+  });
+
+  if (source !== "init") {
+    log(`${source}: speed ${level}/5, ${percent}%, ${level} LED(s) ON.`);
   }
 }
 
 function applyGesture(count) {
-  const level = count === 0 ? 0 : count === 1 ? 1 :
-    count === 2 ? 2 : count === 3 ? 3 : 4;
+  $("fingerCount").textContent = count;
+  $("gestureName").textContent =
+    count === 0 ? "FIST" :
+    count === 5 ? "OPEN HAND" :
+    `${count} FINGER${count === 1 ? "" : "S"}`;
+  $("detectStatus").textContent = "STABLE";
 
-  currentGesture = count;
-  document.getElementById("fingerCount").textContent = count;
-  document.getElementById("gestureName").textContent = labels[level];
-  document.getElementById("confidence").textContent = "STABLE";
-
-  if (lastAppliedGesture !== count) {
-    setFan(level, "gesture");
-    lastAppliedGesture = count;
+  if (lastAppliedCount !== count) {
+    setFanSpeed(count, "Gesture detected");
+    lastAppliedCount = count;
   }
 }
 
-async function setupModel() {
+async function createDetector(delegate) {
   const vision = await FilesetResolver.forVisionTasks(
     "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm"
   );
@@ -425,7 +502,7 @@ async function setupModel() {
     baseOptions: {
       modelAssetPath:
         "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task",
-      delegate: "GPU"
+      delegate
     },
     runningMode: "VIDEO",
     numHands: 1,
@@ -436,39 +513,30 @@ async function setupModel() {
 }
 
 async function startCamera() {
-  startBtn.disabled = true;
-  startBtn.textContent = "Starting...";
+  $("startBtn").disabled = true;
+  $("startBtn").textContent = "Starting...";
+
   try {
     if (!navigator.mediaDevices?.getUserMedia) {
       throw new Error("Camera access requires HTTPS or localhost.");
     }
 
-    if (!handLandmarker) {
+    if (!detector) {
       try {
-        handLandmarker = await setupModel();
+        detector = await createDetector("GPU");
       } catch (gpuError) {
-        log("GPU unavailable; trying CPU inference.");
-        const vision = await FilesetResolver.forVisionTasks(
-          "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm"
-        );
-        handLandmarker = await HandLandmarker.createFromOptions(vision, {
-          baseOptions: {
-            modelAssetPath:
-              "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task",
-            delegate: "CPU"
-          },
-          runningMode: "VIDEO",
-          numHands: 1,
-          minHandDetectionConfidence: 0.65,
-          minHandPresenceConfidence: 0.65,
-          minTrackingConfidence: 0.65
-        });
+        log("GPU initialization failed; trying CPU.");
+        detector = await createDetector("CPU");
       }
     }
 
     stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: "user", width: { ideal: 640 }, height: { ideal: 480 } },
-      audio: false
+      audio: false,
+      video: {
+        facingMode: "user",
+        width: { ideal: 640 },
+        height: { ideal: 480 }
+      }
     });
 
     video.srcObject = stream;
@@ -476,104 +544,130 @@ async function startCamera() {
 
     canvas.width = video.videoWidth || 640;
     canvas.height = video.videoHeight || 480;
+
     running = true;
-    cameraMessage.classList.add("hidden");
-    systemStatus.textContent = "Camera active";
-    systemStatus.classList.add("active");
-    stopBtn.disabled = false;
-    startBtn.textContent = "Camera Running";
-    log("Camera started. Show your hand to the camera.");
+    lastVideoTime = -1;
+    candidateCount = null;
+    stableFrames = 0;
+
+    $("cameraMessage").classList.add("hidden");
+    $("status").textContent = "Camera active";
+    $("status").classList.add("active");
+    $("startBtn").textContent = "Camera Running";
+    $("stopBtn").disabled = false;
+
+    log("Camera started. Show 0–5 fingers.");
     requestAnimationFrame(processFrame);
   } catch (error) {
     console.error(error);
     log("ERROR: " + error.message);
-    systemStatus.textContent = "Camera unavailable";
-    startBtn.disabled = false;
-    startBtn.textContent = "Retry Camera";
-    alert("Could not start camera/model. Allow camera access, check your internet connection, and use the HTTPS GitHub Pages website.\n\n" + error.message);
+    $("status").textContent = "Camera unavailable";
+    $("startBtn").disabled = false;
+    $("startBtn").textContent = "Retry Camera";
+    alert(
+      "Could not start the camera or hand model.\n" +
+      "Allow camera permission and check your internet connection.\n\n" +
+      error.message
+    );
   }
 }
 
 function processFrame(now) {
   if (!running) return;
-  if (video.readyState >= 2 && now - lastInferenceTime >= INFERENCE_INTERVAL &&
-      video.currentTime !== lastVideoTime) {
-    lastInferenceTime = now;
+
+  if (
+    video.readyState >= 2 &&
+    now - lastInference >= INFERENCE_INTERVAL_MS &&
+    video.currentTime !== lastVideoTime
+  ) {
+    lastInference = now;
     lastVideoTime = video.currentTime;
 
     try {
-      const result = handLandmarker.detectForVideo(video, now);
-      if (result.landmarks && result.landmarks.length) {
+      const result = detector.detectForVideo(video, now);
+
+      if (result.landmarks && result.landmarks.length > 0) {
         const points = result.landmarks[0];
         drawHand(points);
 
-        const detection = classifyGesture(points);
-        document.getElementById("fingerCount").textContent = detection.count;
-        document.getElementById("confidence").textContent = "TRACKING";
+        const detected = classifyFingers(points);
+        const count = detected.count;
 
-        if (candidateGesture === detection.count) {
-          candidateFrames++;
+        $("fingerCount").textContent = count;
+        $("detectStatus").textContent = "TRACKING";
+
+        if (candidateCount === count) {
+          stableFrames++;
         } else {
-          candidateGesture = detection.count;
-          candidateFrames = 1;
+          candidateCount = count;
+          stableFrames = 1;
         }
 
-        if (candidateFrames >= GESTURE_FRAMES) {
-          applyGesture(detection.count);
+        if (stableFrames >= REQUIRED_STABLE_FRAMES) {
+          applyGesture(count);
+        } else {
+          $("gestureName").textContent = "VERIFYING";
         }
       } else {
         drawHand(null);
-        candidateGesture = null;
-        candidateFrames = 0;
-        document.getElementById("fingerCount").textContent = "—";
-        document.getElementById("gestureName").textContent = "NO HAND";
-        document.getElementById("confidence").textContent = "SEARCHING";
+        candidateCount = null;
+        stableFrames = 0;
+        $("fingerCount").textContent = "—";
+        $("gestureName").textContent = "NO HAND";
+        $("detectStatus").textContent = "SEARCHING";
       }
     } catch (error) {
-      console.error("Hand detection error:", error);
+      console.error("Detection error:", error);
     }
   }
+
   requestAnimationFrame(processFrame);
 }
 
 function stopCamera() {
   running = false;
+
   if (stream) {
     stream.getTracks().forEach(track => track.stop());
     stream = null;
   }
+
   video.srcObject = null;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  cameraMessage.classList.remove("hidden");
-  systemStatus.textContent = "Camera stopped";
-  systemStatus.classList.remove("active");
-  startBtn.disabled = false;
-  startBtn.textContent = "Start Camera";
-  stopBtn.disabled = true;
-  candidateGesture = null;
-  candidateFrames = 0;
-  document.getElementById("fingerCount").textContent = "—";
-  document.getElementById("gestureName").textContent = "WAIT";
-  document.getElementById("confidence").textContent = "—";
+  $("cameraMessage").classList.remove("hidden");
+  $("status").textContent = "Camera stopped";
+  $("status").classList.remove("active");
+  $("startBtn").disabled = false;
+  $("startBtn").textContent = "Start Camera";
+  $("stopBtn").disabled = true;
+
+  $("fingerCount").textContent = "—";
+  $("gestureName").textContent = "WAIT";
+  $("detectStatus").textContent = "—";
+
+  candidateCount = null;
+  stableFrames = 0;
   log("Camera stopped.");
 }
 
-startBtn.addEventListener("click", startCamera);
-stopBtn.addEventListener("click", stopCamera);
+$("startBtn").addEventListener("click", startCamera);
+$("stopBtn").addEventListener("click", stopCamera);
+
 document.querySelectorAll("[data-manual]").forEach(button => {
   button.addEventListener("click", () => {
     const level = Number(button.dataset.manual);
-    setFan(level, "manual");
-    lastAppliedGesture = null;
+    setFanSpeed(level, "Manual control");
+    lastAppliedCount = null;
   });
 });
-document.getElementById("clearLog").addEventListener("click", () => {
-  document.getElementById("log").textContent = "";
+
+$("clearLog").addEventListener("click", () => {
+  $("log").textContent = "";
   log("Activity log cleared.");
 });
-window.addEventListener("beforeunload", stopCamera);
 
-setFan(0, "init");
+window.addEventListener("pagehide", stopCamera);
+setFanSpeed(0, "init");
 </script>
 </body>
 </html>
